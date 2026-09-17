@@ -58,7 +58,7 @@ Seed a reference loan (₹2,00,000 at 18% annual interest for 24 months):
 node scripts/seed.js
 ```
 
-Copy the printed `LOAN_ID` into your `.env` as `NEXT_PUBLIC_LOAN_ID`.
+*(Note: `seed.js` automatically creates the reference loan in PostgreSQL and updates `NEXT_PUBLIC_LOAN_ID` in your `.env` file).*
 
 ### 5. Run the Development Server
 
