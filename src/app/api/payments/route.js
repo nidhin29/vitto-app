@@ -134,10 +134,13 @@ export async function POST(req) {
 
         if (newPaidAmount >= totalDue) {
           newStatus = "PAID";
-        } else {
-          // Partially paid past-due instalment — mark OVERDUE
+          newOverdueAmount = 0;
+        } else if (parsedPaymentDate > new Date(inst.dueDate)) {
           newStatus = "OVERDUE";
           newOverdueAmount = Number((totalDue - newPaidAmount).toFixed(2));
+        } else {
+          newStatus = "PARTIALLY_PAID";
+          newOverdueAmount = 0;
         }
 
         await tx.instalments.update({
@@ -190,12 +193,14 @@ export async function POST(req) {
 
           // c) Re-amortise over the remaining tenure using the new principalBalance.
           //    Rate is the original annual rate from the loan (r = annual_rate / 100 / 12).
-          const r = Number(currentLoan.rate);
+          const r = Number(currentLoan.rate) / 100 / 12;
           const n = futureInstalments.length;
           const P = newPrincipalBalance;
 
           // Recalculate EMI with the new principal
-          const emi = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+          const emi = P > 0 && n > 0
+            ? (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
+            : 0;
 
           let remainingBalance = P;
           const newInstalments = [];

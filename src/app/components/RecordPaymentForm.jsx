@@ -8,29 +8,34 @@ export default function RecordPaymentForm({ onSubmitPayment }) {
   const [date, setDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!amount || parseFloat(amount) <= 0) return;
 
     setIsSubmitting(true);
     setSuccessMsg("");
+    setErrorMsg("");
 
-    setTimeout(() => {
+    try {
       if (onSubmitPayment) {
-        onSubmitPayment({
+        await onSubmitPayment({
           amount: parseFloat(amount),
-          date: date || new Date().toISOString().split("T")[0],
+          date: date || "",
         });
       }
-      setIsSubmitting(false);
-      setSuccessMsg(`Payment of ₹${parseFloat(amount).toLocaleString('en-IN', {minimumFractionDigits: 2})} submitted successfully!`);
+      setSuccessMsg(`Payment of ₹${parseFloat(amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })} submitted successfully!`);
       setAmount("");
       setDate("");
-
       setTimeout(() => setSuccessMsg(""), 4000);
-    }, 400);
+    } catch (err) {
+      setErrorMsg(err.message || "Payment failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   return (
     <div className="bg-white border border-slate-200/90 rounded-xl p-6 shadow-2xs">
@@ -49,6 +54,14 @@ export default function RecordPaymentForm({ onSubmitPayment }) {
           <button onClick={() => setSuccessMsg("")} className="font-bold text-emerald-800 ml-2">×</button>
         </div>
       )}
+
+      {errorMsg && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs md:text-sm rounded-lg flex items-center justify-between">
+          <span>{errorMsg}</span>
+          <button onClick={() => setErrorMsg("")} className="font-bold text-red-800 ml-2">×</button>
+        </div>
+      )}
+
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Payment Amount Field */}

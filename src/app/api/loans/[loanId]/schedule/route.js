@@ -38,21 +38,65 @@ export async function GET(req, context) {
     }
 
     
-    const schedule = loan.instalments.map((inst) => ({
-      id: inst.id,
-      month: inst.sequenceNumber,
-      dueDate: inst.dueDate,
-      principal: Number(inst.principalComponent),
-      interest: Number(inst.interestComponent),
-      totalDue: Number(inst.totalDue),
-      paid: Number(inst.paidAmount),
-      overdueAmount: Number(inst.overdueAmount),
-      status: inst.status,
-    }));
+    const now = new Date();
+
+    const schedule = loan.instalments.map((inst) => {
+      const totalDue = Number(inst.totalDue);
+      const paid = Number(inst.paidAmount);
+      const dueDate = new Date(inst.dueDate);
+      const isPastDue = dueDate < now;
+
+      let effectiveStatus = inst.status;
+      let effectiveOverdue = Number(inst.overdueAmount);
+
+      if (inst.status !== "PAID" && inst.status !== "CLOSED") {
+        if (isPastDue) {
+          effectiveStatus = "OVERDUE";
+          effectiveOverdue = Number((totalDue - paid).toFixed(2));
+        } else if (paid > 0 && paid < totalDue) {
+          effectiveStatus = "PARTIALLY_PAID";
+          effectiveOverdue = 0;
+        }
+      }
+
+      return {
+        id: inst.id,
+        month: inst.sequenceNumber,
+        dueDate: inst.dueDate,
+        principal: Number(inst.principalComponent),
+        interest: Number(inst.interestComponent),
+        totalDue,
+        paid,
+        overdueAmount: effectiveOverdue,
+        status: effectiveStatus,
+      };
+    });
+
+    // Compute current position metrics dynamically as of today
+    const unpaidInstalments = schedule.filter(
+      (inst) => inst.status !== "PAID" && inst.status !== "CLOSED"
+    );
+
+    const outstandingPrincipal = Number(loan.principalBalance);
+    const overdueAmount = schedule
+      .filter((inst) => inst.status === "OVERDUE")
+      .reduce((sum, inst) => sum + inst.overdueAmount, 0);
+
+    const nextInstalment = unpaidInstalments[0] || null;
+    const nextDueDate = nextInstalment ? nextInstalment.dueDate : null;
+    const nextDueAmount = nextInstalment
+      ? Number((nextInstalment.totalDue - nextInstalment.paid).toFixed(2))
+      : 0;
 
     return NextResponse.json(
       {
         loanId: loan.id,
+        currentPosition: {
+          outstandingPrincipal,
+          nextDueDate,
+          nextDueAmount,
+          overdueAmount: Number(overdueAmount.toFixed(2)),
+        },
         totalInstalments: schedule.length,
         schedule: schedule,
       },
