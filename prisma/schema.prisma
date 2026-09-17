@@ -15,18 +15,19 @@ CLOSED
 }
 
 model Loan {
-    id             String      @id @default(uuid())
-    principal      Decimal     @db.Decimal(12, 2)
-    rate           Decimal     @db.Decimal(5, 2)
-    tenureMonths   Int
-    startDate      DateTime
-    status         LoanStatus  @default(ACTIVE)
-    createdAt      DateTime    @default(now())
+    id               String      @id @default(uuid())
+    principal        Decimal     @db.Decimal(12, 2)
+    // principalBalance tracks the outstanding principal after any curtailment payments.
+    // It starts equal to principal and is reduced when overpayments are applied directly to principal.
+    principalBalance Decimal     @db.Decimal(12, 2)
+    rate             Decimal     @db.Decimal(5, 2)
+    tenureMonths     Int
+    startDate        DateTime
+    status           LoanStatus  @default(ACTIVE)
+    createdAt        DateTime    @default(now())
 
     instalments Instalments[]
     payments    Payment[]
-
-    
 }
 
 model Instalments {
