@@ -50,11 +50,17 @@ export async function GET(req, context) {
       let effectiveOverdue = Number(inst.overdueAmount);
 
       if (inst.status !== "PAID" && inst.status !== "CLOSED") {
-        if (isPastDue) {
-          effectiveStatus = "OVERDUE";
-          effectiveOverdue = Number((totalDue - paid).toFixed(2));
+        if (paid >= totalDue) {
+          effectiveStatus = "PAID";
+          effectiveOverdue = 0;
         } else if (paid > 0 && paid < totalDue) {
           effectiveStatus = "PARTIALLY_PAID";
+          effectiveOverdue = isPastDue ? Number((totalDue - paid).toFixed(2)) : 0;
+        } else if (isPastDue) {
+          effectiveStatus = "OVERDUE";
+          effectiveOverdue = Number((totalDue - paid).toFixed(2));
+        } else {
+          effectiveStatus = "ACTIVE";
           effectiveOverdue = 0;
         }
       }

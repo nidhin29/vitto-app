@@ -8,10 +8,11 @@ provider = "prisma-client-js"
 }
 
 enum LoanStatus {
-ACTIVE
-PAID
-OVERDUE
-CLOSED
+  ACTIVE
+  PAID
+  PARTIALLY_PAID
+  OVERDUE
+  CLOSED
 }
 
 model Loan {

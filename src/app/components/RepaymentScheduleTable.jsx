@@ -1,25 +1,53 @@
 import React from "react";
 
-export const PaymentStatus = Object.freeze({
-  PAID: "Paid",
-  PARTIALLY_PAID: "Partially paid",
-  OVERDUE: "Overdue",
-  PENDING: "Pending",
-});
-
-const STATUS_STYLES = Object.freeze({
-  [PaymentStatus.PAID]: "bg-[#e6f4ea] text-[#137333] border-emerald-100",
-  [PaymentStatus.PARTIALLY_PAID]: "bg-[#fef7e0] text-[#b06000] border-amber-100",
-  [PaymentStatus.OVERDUE]: "bg-[#fce8e6] text-[#c5221f] border-rose-100",
-  [PaymentStatus.PENDING]: "bg-[#f1f3f4] text-[#5f6368] border-slate-200",
-});
-
 function StatusBadge({ status }) {
-  const currentStyle = STATUS_STYLES[status] || STATUS_STYLES[PaymentStatus.PENDING];
+  const normalized = (status || "").toUpperCase();
+
+  let badgeStyle = {
+    backgroundColor: "#f1f5f9",
+    color: "#475569",
+    border: "1px solid #cbd5e1",
+  };
+
+  if (normalized === "PAID") {
+    badgeStyle = {
+      backgroundColor: "#dcfce7",
+      color: "#15803d",
+      border: "1px solid #86efac",
+    };
+  } else if (normalized === "ACTIVE") {
+    badgeStyle = {
+      backgroundColor: "#e0f2fe",
+      color: "#0369a1",
+      border: "1px solid #7dd3fc",
+    };
+  } else if (normalized === "OVERDUE") {
+    badgeStyle = {
+      backgroundColor: "#fee2e2",
+      color: "#b91c1c",
+      border: "1px solid #fca5a5",
+    };
+  } else if (normalized === "PARTIALLY_PAID") {
+    badgeStyle = {
+      backgroundColor: "#fef3c7",
+      color: "#b45309",
+      border: "1px solid #fcd34d",
+    };
+  }
 
   return (
     <span
-      className={`inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold border ${currentStyle}`}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "3px 10px",
+        borderRadius: "9999px",
+        fontSize: "11px",
+        fontWeight: 700,
+        letterSpacing: "0.03em",
+        textTransform: "uppercase",
+        ...badgeStyle,
+      }}
     >
       {status}
     </span>

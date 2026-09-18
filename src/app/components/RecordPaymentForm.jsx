@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calendar } from "lucide-react";
 
 export default function RecordPaymentForm({ onSubmitPayment }) {
   const [amount, setAmount] = useState("");
@@ -95,19 +94,12 @@ export default function RecordPaymentForm({ onSubmitPayment }) {
           <div className="relative rounded-lg border border-slate-300 focus-within:border-[var(--primary-color)] focus-within:ring-1 focus-within:ring-[var(--primary-color)] bg-white">
             <input
               id="payment-date"
-              type="text"
-              placeholder="dd-mm-yyyy"
+              type="date"
               value={date}
-              onFocus={(e) => (e.target.type = "date")}
-              onBlur={(e) => {
-                if (!e.target.value) e.target.type = "text";
-              }}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full pl-3.5 pr-10 py-2.5 text-xs md:text-sm text-slate-900 bg-transparent rounded-lg focus:outline-none placeholder-slate-400 uppercase"
+              style={{ color: date ? "#0f172a" : "#94a3b8" }}
+              className="w-full px-3.5 py-2.5 text-xs md:text-sm bg-transparent rounded-lg focus:outline-none cursor-pointer"
             />
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
-              <Calendar className="w-4 h-4 text-slate-600" />
-            </div>
           </div>
         </div>
 
